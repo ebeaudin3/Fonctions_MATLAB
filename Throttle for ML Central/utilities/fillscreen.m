@@ -1,0 +1,1 @@
+function fillscreen%fillscreen           Set the current figure size to completely fill the screen%% Copyright 2002 - 2003 The MathWorks, Incres=get(0,'ScreenSize');set(gcf,'Position',[1 1 res(3) res(4)-64]); %Leave room for title bar

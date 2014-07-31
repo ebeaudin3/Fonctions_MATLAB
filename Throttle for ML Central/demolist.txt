@@ -1,0 +1,25 @@
+Test and Measurement
+     Data Acquisition Session                                                               $edit daq_session
+     Simple Analog Output                                                               $edit daq1
+     Simultaneous A/D and D/A                                                            $daqfcngen; demoai_fft 
+     Instrument Control Session                                                                     $edit instr_session
+     Simple Oscilloscope Communication                                                              $edit instr1
+     Download Data from the Oscilloscope                                                  $getscopedata_gui;valve_gui_simple
+     
+Data Analysis 
+     Signal Processing Toolbox                                                           $edit datainsight_signal
+     Curve Fitting Toolbox                                                               $try, [Data,time] = daqread(filename);Data = daqtriggerreshape(Data);time = daqtriggerreshape(time);time = time(:,1);, catch, load('ValveTestRelaxed');end;cftool
+
+Case Study: Electronic Throttle Body                                                               
+    1.  Connect to hardware                                                                        $edit valve_walkthrough
+    2.  Develop classification algorithm
+            Import data from Excel                                                                   $try, uiimport([filename '.xls']), catch, uiimport('ValveTest_Relaxed.xls'), end;
+            Design algorithm                                                                         $try,fs=1/(time(2)-time(1));, catch load ValveTestRelaxed;position=data*90/4.5;fs=1/(time(2)-time(1));end;sptool
+            Try out algorithm                                                                            $analyze_plot
+            Apply to complete data set                                                               $rpt_ProductionTest
+            Compare with alternative algorithm                                                       $cfit_analysis     
+     3.  Improve simulations with measured data                                                         
+            Run throttle simulation                                                                  $throttle_simulation
+            Improve with measured data                                                                      $throttle_simulation_validate
+     4.  Build integrated measurement system                                                       $valve_gui_batch
+           

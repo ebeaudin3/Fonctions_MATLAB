@@ -1,0 +1,10 @@
+function highlight_curve(h,lh);
+%Input
+%  h       gco
+%  lh      Handle to line to highlight
+
+%If any lines on this axis are selected, deselect them.
+sel = findobj(get(,'Parent'),'Selected','on')
+
+set(lh,'Selected','on')
+

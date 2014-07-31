@@ -1,0 +1,173 @@
+function linelabel(state,ind)
+%linelabel       Identify a line by clicking on it.
+% Application: Plot multiple lines, but you can't tell them apart
+% with linelabel, click on a line, and it will tell you it's
+% identity.  By default, lines are numbered consecutively
+% from 1, in the order of the given handles.  Optionally,
+% you can provide a second input specifying the line identities.
+% This can be one of two things:
+%     A vector of numerical identifiers
+%     A cell array of strings
+% Either way, this must be the same length as the handle vector
+%
+%   linelabel(handles) turns on line labels
+%   linelabel OFF turns line labeling off for the current figure
+%   linelabel(handles,[id_vector]) specifies numerical IDs for the lines
+%   linelabel(handles,{id_cell}) specifies textual IDs for the lines
+%   linelabel(handles,'legend') Uses the labels specified in the legend
+%
+%     Click on a line to label it.
+%     Click and drag on a line label to move it.
+%     Right-Click on a data tip to delete it.
+%
+%	  Example: 
+% 		s = sin(2*pi*linspace(0,1)')*(1:.2:5);
+% 		lh = plot(s)
+% 		linelabel(lh)
+%        %Click on lines to label values.
+%        %Click and drag to move label
+%        %Right click to delete.
+% 		linelabel off
+%        %Existing line labels are locked in place; can't add more
+%
+%  See also DATALABEL
+%  
+% This function is provided as an example only.  It has not been
+% tested, and therefore, it is not officially supported by The
+% MathWorks, Inc.
+%
+% Written by Scott Hirsch
+% shirsch@mathworks.com
+% Most of this code comes from MOVTEXT, by John Galenski III
+% (Mistakes are mine, though!)
+% Copyright (c) by The MathWorks, Inc. 1985-2002
+%
+
+if ~isstr(state) % Set the WindowButtonDownFcn
+    %User call: specify handles to lines
+    handles = state;
+    if ~all(ishandle(handles))
+        error('Input argument must be a vector of line handles');
+    end;
+    
+    set(gcf,'WindowButtonDownFcn','linelabel down')
+    set(gcf,'DoubleBuffer','on');       %eliminate flicker
+    
+    %Store identity to each line as appdata
+    %There are four possibilities here:
+    %1.  User doesn't specify anything (1 nargin).  Use 1:length(handles)
+    %2.  User specifies a vector.  Use these.  arg2 = vector
+    %3.  User specifies a cell array of strings.  arg2 = cell aray
+    %3.  User says to use the labels in the legend.  arg2 = 'legend'
+    %Regardless, end up with a cell array of strings.  Assign one 
+    %  value to each handle, in order
+    
+    if nargin==1        %1.  User doesn't specify anything 
+        ind = mat2cell(num2str((1:length(handles))'),ones(length(handles),1)); 
+    elseif strcmp(ind,'legend')
+        %Find the legend.
+        %First, look for all legends on this figure
+        
+        current_axis = get(handles(1),'Parent');
+        current_figure = get(current_axis,'Parent');
+        
+        legh = findobj(current_figure,'Tag','legend');
+        %if we only found one legend, this is easy
+        if length(legh)==1
+            ud = get(legh,'UserData');  %Returns a struct
+            ind = ud2.lstrings;
+        else
+            ud = get(legh,'UserData');  %Returns a cell array of structs
+            %Search through these to find the one belonging to our figure
+        end;
+        
+        found=0;
+        ii=0;
+        while ~found
+            ii=ii+1;
+            if ud{ii}.PlotHandle == current_axis
+                found=1;
+                ind = ud{ii}.lstrings;
+            end;
+        end;
+        
+        
+    elseif ~iscell(ind)     %2.  User specifies a vector.
+        %Check to be sure that index vector is same length as handles
+        if length(ind) ~= length(handles)
+            error('Index vector must be of same length as handle vector');
+        end;
+        
+        ind = mat2cell(num2str(ind(:)),ones(length(handles),1));
+    else        %3.  User specifies a cell array of strings
+        if length(ind) ~= length(handles)
+            error('Index cell array must be of same length as handle vector');
+        end;
+    end;
+    
+    for ii=1:length(handles)
+        setappdata(handles(ii),'Index',ind{ii});
+    end;
+    
+elseif strcmp(state,'down') % Execute the WindowButtonDownFcn
+    htype = get(gco,'Type');
+    tag = get(gco,'Tag');
+    
+    if strcmp(htype,'line')      %Line - Add text object
+        %This is sloppy, but it works.  The marker is a line named 'Dot'
+        
+        %User-selected point
+        cp = get(gca,'CurrentPoint');
+        x = cp(1,1);       %first xy values
+        y = cp(1,2);       %first xy values
+        
+        
+        %Which line is this?
+        lineno = getappdata(gco,'Index');
+        th = text(x,y,lineno,'HorizontalAlignment','center');
+        
+        v=ver('MATLAB');
+        v=str2num(v.Version);
+        if v>=6.5
+            set(th,'BackgroundColor','y');
+        end;
+        
+        
+        mh = uicontextmenu('Tag','DeleteObject', ...
+            'Callback','delete(gco);');
+        
+        set(th,'UIContextMenu',mh);
+        
+    elseif strcmp(htype,'text') | strcmp(tag,'Dot')
+        set(gco,'EraseMode','xor')
+        set(gcf,'WindowButtonMotionFcn','linelabel move', ...
+            'WindowButtonUpFcn','linelabel up');
+    end
+    
+elseif strcmp(state,'move') % Execute the WindowButtonMotionFcn
+    htype = get(gco,'Type');
+    tag = get(gco,'Tag');
+    if ~isempty(gco)
+        
+        th = gco;
+        
+        cp = get(gca,'CurrentPoint');
+        pt = cp(1,[1 2]);
+        
+        x = cp(1,1);       %first xy values
+        y = cp(1,2);       %first xy values
+        
+        set(th,'Position', [x y 0])
+        
+        drawnow
+    end;
+elseif strcmp(state,'up') % Execute the WindowButtonUpFcn
+    htype = get(gco,'Type');
+    tag = get(gco,'Tag');
+    if strcmp(htype,'text')
+        set(gco,'EraseMode','Normal')
+        set(gcf,'WindowButtonMotionFcn','')
+    end;
+elseif strcmp(state,'off') % Unset the WindowButton...Fcns
+    set(gcf,'WindowButtonDownFcn','','WindowButtonUpFcn','')
+end

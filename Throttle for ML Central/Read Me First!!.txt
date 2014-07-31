@@ -1,0 +1,47 @@
+--------------
+-- Welcome! --
+--------------
+
+Welcome to the Throttle Case Study! This case study demonstrates
+ how The MathWorks software enables users to build Integrated
+ Measurement Systems, incorporating measurement, analysis, reporting
+ and simulation.
+
+
+-----------------
+-- Quick Start --
+-----------------
+
+ o Set MATLAB's current directory to the root directory of this case study
+ o Type >>demoselector at the MATLAB command line
+    - This will open the Demo Selector utility and add all of the 
+      directories to the MATLAB path.
+ o Run any demos or parts of the case study by double-clicking on the
+      appropriate line in the Example Selector utility
+
+
+-------------------------
+-- Documentation Notes --
+-------------------------
+
+Please read the documentation.  I spent a lot of time writing it!
+ The documentation is a file called 'Throttle Case Study.doc'
+ in the Documentation directory.  This (hopefully) covers everything you need
+ to know to run this case study.  Key elements of this document:
+   o Explanation of hardware and software setups for this case study.
+   o Appendix containing details of all included files (organized both
+       by directory and presentation order).
+   o Detailed procedure for presenting the case study, including speaker's
+       notes.
+
+-------------
+-- Gotchas --
+-------------
+
+A few "gotchas" to look out for.
+ o If MATLAB does not see your data acquisition hardware, delete the 
+     Test Board from Instacal, as explained on page 3.
+ o DO NOT RUN any file which is opened in the editor by the example selector.
+     If a file is opened, you should walk through the code line-by-line.  
+     Suggested scripts for these walkthroughs are included in the documentation.
+
